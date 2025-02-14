@@ -26,7 +26,32 @@ const MusicPage = () => {
   });
   const isLoading = form.formState.isSubmitting;
 
-  const onSubmit = async (values: z.infer<typeof formSchmea>) => {};
+  const onSubmit = async (values: z.infer<typeof formSchmea>) => {
+    try {
+      setMusic(undefined);
+      const response = await axios.post(
+        "https://api-inference.huggingface.co/models/facebook/musicgen-small",
+        values,
+        {
+          headers: {
+            Authorization: `Bearer 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`, // Use env variable
+            "Content-Type": "application/json",
+          },
+          responseType: "blob",
+        }
+      );
+
+      // Convert the response data to a blob URL
+      const musicBlob = URL.createObjectURL(response.data);
+      setMusic(musicBlob); // Set the music state to the blob URL
+      form.reset();
+    } catch (error) {
+      console.error("Error generating music:", error);
+      // Optionally, show the error to the user
+    } finally {
+      router.refresh();
+    }
+  };
 
   return (
     <div>
